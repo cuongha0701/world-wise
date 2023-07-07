@@ -39,7 +39,6 @@ export async function deleteCity(id) {
     throw new Error('City could not be deleted!');
   }
 
-  console.log(data);
   return data;
 }
 
@@ -55,5 +54,16 @@ export async function addCity(newCity) {
     throw new Error('City could not be created!');
   }
 
+  return data;
+}
+
+export async function deleteAllCities() {
+  const { error } = await supabase.from('cities').delete().gt('id', 0);
+  if (error) console.log(error.message);
+}
+
+export async function createSampleCities(cities) {
+  const { data, error } = await supabase.from('cities').insert(cities).select();
+  if (error) console.log(error.message);
   return data;
 }

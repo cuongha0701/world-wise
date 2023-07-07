@@ -4,6 +4,8 @@ import {
   getCity as getCityApi,
   deleteCity as deleteCityApi,
   addCity,
+  deleteAllCities as deleteAllCitiesApi,
+  createSampleCities as createSampleCitiesApi,
 } from '../services/apiCities';
 
 const CitiesContext = createContext();
@@ -37,6 +39,14 @@ function reducer(state, action) {
         isLoading: false,
         cities: state.cities.filter((city) => city.id !== action.payload),
         currentCity: {},
+      };
+
+    case 'city/wipe':
+      return {
+        ...state,
+        cities: [],
+        currentCity: {},
+        isLoading: false,
       };
 
     case 'city/loaded':
@@ -89,11 +99,9 @@ function CitiesProvider({ children }) {
   );
 
   async function createCity(newCity) {
-    console.log(newCity);
     try {
       dispatch({ type: 'loading' });
       const data = await addCity(newCity);
-      console.log(data);
       dispatch({ type: 'city/created', payload: data });
     } catch (error) {
       dispatch({
@@ -116,6 +124,32 @@ function CitiesProvider({ children }) {
     }
   }
 
+  async function deleteAllCities() {
+    try {
+      dispatch({ type: 'loading' });
+      await deleteAllCitiesApi();
+      dispatch({ type: 'city/wipe' });
+    } catch (error) {
+      dispatch({
+        type: 'rejected',
+        payload: 'There was an error when deleting city!',
+      });
+    }
+  }
+
+  async function createSampleCities(cities) {
+    try {
+      dispatch({ type: 'loading' });
+      const data = await createSampleCitiesApi(cities);
+      dispatch({ type: 'cities/loaded', payload: data });
+    } catch (error) {
+      dispatch({
+        type: 'rejected',
+        payload: 'There was an error when create city!',
+      });
+    }
+  }
+
   return (
     <CitiesContext.Provider
       value={{
@@ -126,6 +160,8 @@ function CitiesProvider({ children }) {
         getCity,
         createCity,
         deleteCity,
+        deleteAllCities,
+        createSampleCities,
       }}
     >
       {children}
